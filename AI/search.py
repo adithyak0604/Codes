@@ -31,26 +31,27 @@ print("\n")
 
 
 import heapq
-def bestfs(graph, start, goal, heuristic):
-    priority_queue=[]
-    heapq.heappush(priority_queue, (heuristic[start], start))
+def best(graph, start, goal, heuristic):
+    pq=[]
+    heapq.heappush(pq, (heuristic[start], start))
     visited=set()
-    while priority_queue:
-        current_heuristic, current_node=heapq.heappop(priority_queue)
-        if current_node==goal:
+    while pq:
+        current_h, current_n=heapq.heappop(pq)
+        if current_n==goal:
             print(f"Goal {goal} reached")
             return True
-        visited.add(current_node)
-        for neighbor in graph[current_node]:
-            if neighbor not in visited:
-                heapq.heappush(priority_queue, (heuristic[neighbor], neighbor))
-                visited.add(neighbor)
-        print("Route : ",neighbor)
-    print(f"Goal {goal} is not reachable")
+        if current_n not in visited:
+            visited.add(current_n)
+            print("Route: ",current_n)
+            for neighbor in graph[current_n]:
+                if neighbor not in visited:
+                    heapq.heappush(pq, (heuristic[neighbor],neighbor))
+    print(f"Goal {goal} is not reached")
     return False
+
 graph={ 'A':['B','C','E'], 'B':['A','D','F'], 'C':['A','D'], 'D':['B','C','H'], 'E':['A','F'], 'F':['B','E','G'], 'G':['F','H'], 'H':['D','G']}
 heuristic={ 'A':7, 'B':6, 'C':9, 'D':3, 'E':8, 'F':2, 'G':4, 'H':0 }
 start_node='A'
 goal_node='H'
-bestfs(graph, start_node, goal_node, heuristic)
+best(graph, start_node, goal_node, heuristic)
 print("\n")
