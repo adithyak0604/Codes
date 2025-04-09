@@ -1,2 +1,0 @@
-NLTK is a powerful tool for NLP Labs.
-Network is a set of interconnected devices.
