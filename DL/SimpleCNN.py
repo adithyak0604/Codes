@@ -1,4 +1,4 @@
-# Basic CNN for MNIST Classification
+# Basic CNN for MNIST Classification implemented using PyTorch
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
@@ -87,3 +87,62 @@ def main():
 
 if __name__ == "__main__":
     main()
+
+
+# Basic CNN for MNIST Classification implemented using Tensorflow
+import tensorflow as tf
+from tensorflow.keras.models import Sequential
+from tensorflow.keras.layers import Conv2D, MaxPooling2D, Flatten, Dense, Dropout
+from tensorflow.keras.losses import SparseCategoricalCrossentropy
+from tensorflow.keras.metrics import SparseCategoricalAccuracy
+from tensorflow.keras.optimizers import Adam
+
+# -----------------------------
+# Load and preprocess MNIST data
+# -----------------------------
+mnist = tf.keras.datasets.mnist
+(x_train, y_train), (x_test, y_test) = mnist.load_data()
+
+# Normalize and reshape (MNIST images are 28x28 grayscale)
+x_train = x_train.reshape(-1, 28, 28, 1) / 255.0
+x_test = x_test.reshape(-1, 28, 28, 1) / 255.0
+
+# -----------------------------
+# Build a Simple CNN model
+# -----------------------------
+model = Sequential([
+    # Convolution layer (extracts features)
+    Conv2D(32, (3, 3), activation='relu', input_shape=(28, 28, 1)),
+    MaxPooling2D((2, 2)),
+    
+    # Second convolution layer
+    Conv2D(64, (3, 3), activation='relu'),
+    MaxPooling2D((2, 2)),
+    
+    # Flatten and fully connected layers
+    Flatten(),
+    Dense(128, activation='relu'),
+    Dropout(0.5),  # helps prevent overfitting
+    Dense(10, activation='softmax')  # output layer for 10 classes
+])
+
+# -----------------------------
+# Compile the model
+# -----------------------------
+model.compile(
+    optimizer=Adam(),
+    loss=SparseCategoricalCrossentropy(),
+    metrics=[SparseCategoricalAccuracy()]
+)
+
+# -----------------------------
+# Train the model
+# -----------------------------
+model.fit(x_train, y_train, epochs=2, batch_size=64, verbose=1)
+
+# -----------------------------
+# Evaluate the model
+# -----------------------------
+test_loss, test_acc = model.evaluate(x_test, y_test)
+print(f"\n✅ Test Accuracy: {test_acc:.4f}")
+
