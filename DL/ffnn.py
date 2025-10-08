@@ -6,8 +6,8 @@ from tensorflow.keras.metrics import SparseCategoricalAccuracy
 from tensorflow.keras.optimizers import Adam, SGD
 
 # Load and normalize MNIST data
-mnist = tf.keras.datasets.mnist
-(x_train, y_train), (x_test, y_test) = mnist.load_data()
+mnist = tf.keras.datasets.mnist   #or cifar10 = tf.keras.datasets.cifar10
+(x_train, y_train), (x_test, y_test) = mnist.load_data()  #or cifar10.load_data()
 x_train, x_test = x_train / 255.0, x_test / 255.0
 
 # Define optimizers with proper names
@@ -23,7 +23,7 @@ for name, opt_instance in optimizers.items():
 
     # Build a fresh model for each optimizer
     model = Sequential([
-        Flatten(input_shape=(28, 28)),
+        Flatten(input_shape=(28, 28)),    #or (32, 32, 3) for cifar10
         Dense(128, activation='relu'),
         Dense(64, activation='relu'),
         Dense(10, activation='softmax')
