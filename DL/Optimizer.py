@@ -1,73 +1,41 @@
 import tensorflow as tf
-from tensorflow.keras.layers import Dense, Flatten
 from tensorflow.keras.models import Sequential
-from tensorflow.keras.optimizers import SGD, Adam
-import matplotlib.pyplot as plt
-import numpy as np
+from tensorflow.keras.layers import Flatten, Dense
+from tensorflow.keras.losses import SparseCategoricalCrossentropy
+from tensorflow.keras.metrics import SparseCategoricalAccuracy
+from tensorflow.keras.optimizers import Adam, RMSprop, SGD
 
-# 1. Load and preprocess data
-(x_train, y_train), (x_test, y_test) = tf.keras.datasets.mnist.load_data()
+# Load and normalize CIFAR-10 data,, u can also use mnist (better accuracy)
+mnist = tf.keras.datasets.mnist#change cifar10 to mnist if mnist
+(x_train, y_train), (x_test, y_test) = mnist.load_data() #mnist.load_data()
 x_train, x_test = x_train / 255.0, x_test / 255.0
 
-# 2. Define a function to create the model
-def create_mlp_model():
+# List of optimizer classes
+optimizers = [Adam, RMSprop, SGD] #add more optimizers if u want
+
+# Loop through each optimizer
+for opt_class in optimizers:
+    print(f"\nUsing optimizer: {opt_class.__name__}")
+
+    # Build a fresh model for each optimizer
     model = Sequential([
-        Flatten(input_shape=(28, 28)),
+        Flatten(input_shape=(28, 28)), #(28,28) input shape for mnist
         Dense(128, activation='relu'),
-        Dense(128, activation='relu'),
+        Dense(64, activation='relu'),
         Dense(10, activation='softmax')
     ])
-    return model
 
-# 3. Define the optimizers to test
-optimizers_to_test = {
-    'SGD': SGD(),
-    'SGD with Momentum': SGD(momentum=0.9),
-    'Adam': Adam()
-}
+    # Compile the model with the current optimizer
+    model.compile(
+        optimizer=opt_class(),
+        loss=SparseCategoricalCrossentropy(),
+        metrics=[SparseCategoricalAccuracy()]
+    )
 
-histories = {}
-epochs = 15
+    # Train the model
+    model.fit(x_train, y_train, epochs=5, verbose=1) #change epochs if u want
 
-# 4. Loop, compile, and train a model for each optimizer
-for name, optimizer in optimizers_to_test.items():
-    print(f"\n--- Training with {name} optimizer ---")
-    model = create_mlp_model()
-    model.compile(optimizer=optimizer,
-                  loss='sparse_categorical_crossentropy',
-                  metrics=['accuracy'])
-    
-    history = model.fit(x_train, y_train,
-                        validation_data=(x_test, y_test),
-                        epochs=epochs,
-                        batch_size=64,
-                        verbose=0) # Set to 1 to see live progress
-    histories[name] = history.history
-    print(f"Final Validation Accuracy ({name}): {history.history['val_accuracy'][-1]:.4f}")
+    # Evaluate the model
+    test_loss, test_acc = model.evaluate(x_test, y_test)
+    print(f"Test accuracy with {opt_class.__name__}: {test_acc:.4f}")
 
-# 5. Plot the results
-plt.style.use('seaborn-v0_8-whitegrid')
-
-# Plot Accuracy
-plt.figure(figsize=(12, 8))
-for name, history in histories.items():
-    plt.plot(history['val_accuracy'], label=f'{name} Validation Accuracy')
-plt.title('Validation Accuracy Comparison for Optimizers', fontsize=16)
-plt.xlabel('Epochs', fontsize=12)
-plt.ylabel('Accuracy', fontsize=12)
-plt.legend(fontsize=12)
-plt.grid(True)
-plt.savefig('optimizer_accuracy_comparison.png')
-
-# Plot Loss
-plt.figure(figsize=(12, 8))
-for name, history in histories.items():
-    plt.plot(history['val_loss'], label=f'{name} Validation Loss')
-plt.title('Validation Loss Comparison for Optimizers', fontsize=16)
-plt.xlabel('Epochs', fontsize=12)
-plt.ylabel('Loss', fontsize=12)
-plt.legend(fontsize=12)
-plt.grid(True)
-plt.savefig('optimizer_loss_comparison.png')
-
-print("\nPlots saved as 'optimizer_accuracy_comparison.png' and 'optimizer_loss_comparison.png'")
