@@ -12,10 +12,10 @@ from torch.utils.data import DataLoader
 class SimpleCNN(nn.Module):
     def __init__(self):
         super(SimpleCNN, self).__init__()
-        self.conv1 = nn.Conv2d(1, 8, kernel_size=3, padding=1)  # 1 input channel, 8 filters
-        self.conv2 = nn.Conv2d(8, 16, kernel_size=3, padding=1) # 16 filters
-        self.fc1 = nn.Linear(16 * 7 * 7, 64)  # Fully connected layer
-        self.fc2 = nn.Linear(64, 10)          # 10 classes (digits)
+        self.conv1 = nn.Conv2d(3, 16, kernel_size=3, padding=1)  # 1 input channel, 8 filters
+        self.conv2 = nn.Conv2d(16, 32, kernel_size=3, padding=1) # 16 filters
+        self.fc1 = nn.Linear(32 * 8 * 8, 128)  # Fully connected layer
+        self.fc2 = nn.Linear(128, 10)          # 10 classes (digits)
 
     def forward(self, x):
         x = F.relu(self.conv1(x))      # Conv1 + ReLU
@@ -67,11 +67,11 @@ def main():
     # Transform: convert to tensor + normalize
     transform = transforms.Compose([
         transforms.ToTensor(),
-        transforms.Normalize((0.1307,), (0.3081,))
+        transforms.Normalize((0.1307,), (0.3081,))    #For Cifar, Normalize((0.5, 0.5, 0.5), (0.5, 0.5, 0.5))
     ])
 
-    train_dataset = datasets.MNIST('./data', train=True, download=True, transform=transform)
-    test_dataset = datasets.MNIST('./data', train=False, transform=transform)
+    train_dataset = datasets.CIFAR10('./data', train=True, download=True, transform=transform)
+    test_dataset = datasets.CIFAR10('./data', train=False, transform=transform)
 
     train_loader = DataLoader(train_dataset, batch_size=64, shuffle=True)
     test_loader = DataLoader(test_dataset, batch_size=1000, shuffle=False)
@@ -100,19 +100,19 @@ from tensorflow.keras.optimizers import Adam
 # -----------------------------
 # Load and preprocess MNIST data
 # -----------------------------
-mnist = tf.keras.datasets.mnist
-(x_train, y_train), (x_test, y_test) = mnist.load_data()
+mnist = tf.keras.datasets.mnist        #cifar10 = tf.keras.datasets.cifar10
+(x_train, y_train), (x_test, y_test) = mnist.load_data()    #cifar10.load_data()
 
 # Normalize and reshape (MNIST images are 28x28 grayscale)
-x_train = x_train.reshape(-1, 28, 28, 1) / 255.0
-x_test = x_test.reshape(-1, 28, 28, 1) / 255.0
+x_train = x_train.reshape(-1, 28, 28, 1) / 255.0    #For Cifar, x_train = x_train/255.0
+x_test = x_test.reshape(-1, 28, 28, 1) / 255.0     #x_test = x_test/255.0
 
 # -----------------------------
 # Build a Simple CNN model
 # -----------------------------
 model = Sequential([
     # Convolution layer (extracts features)
-    Conv2D(32, (3, 3), activation='relu', input_shape=(28, 28, 1)),
+    Conv2D(32, (3, 3), activation='relu', input_shape=(28, 28, 1)),    #input_shape=(32,32,3)
     MaxPooling2D((2, 2)),
     
     # Second convolution layer
