@@ -12,7 +12,7 @@ from torch.utils.data import DataLoader
 class LeNet(nn.Module):
     def __init__(self, num_classes=10):
         super(LeNet, self).__init__()
-        self.conv1 = nn.Conv2d(1, 6, kernel_size=5)    # For grayscale images (MNIST)
+        self.conv1 = nn.Conv2d(1, 6, kernel_size=5)    # For grayscale images (MNIST) / For Cifar, (3, 6)
         self.conv2 = nn.Conv2d(6, 16, kernel_size=5)
         self.fc1 = nn.Linear(16 * 5 * 5, 120)  # Adjust depending on input size
         self.fc2 = nn.Linear(120, 84)
@@ -69,11 +69,12 @@ def main():
     transform = transforms.Compose([
         transforms.Resize((32, 32)),   # LeNet expects 32x32 input
         transforms.ToTensor(),
-        transforms.Normalize((0.1307,), (0.3081,))
+        transforms.Normalize((0.1307,), (0.3081,))  #For Cifar, .Normalize((0.5, 0.5, 0.5), (0.5, 0.5, 0.5))
+                      
     ])
     
-    train_dataset = datasets.MNIST('./data', train=True, download=True, transform=transform)
-    test_dataset = datasets.MNIST('./data', train=False, transform=transform)
+    train_dataset = datasets.MNIST('./data', train=True, download=True, transform=transform)  #.CIFAR10
+    test_dataset = datasets.MNIST('./data', train=False, transform=transform)  #.CIFAR10
 
     train_loader = DataLoader(train_dataset, batch_size=64, shuffle=True)
     test_loader = DataLoader(test_dataset, batch_size=1000, shuffle=False)
