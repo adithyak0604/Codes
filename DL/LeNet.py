@@ -90,3 +90,85 @@ def main():
 
 if __name__ == '__main__':
     main()
+
+# LeNet Implementation in Tensorflow
+# LeNet Implementation in TensorFlow (Keras)
+import tensorflow as tf
+from tensorflow.keras import datasets, layers, models
+import matplotlib.pyplot as plt
+
+# ------------------------------
+# Define LeNet-5 Architecture
+# ------------------------------
+def LeNet(num_classes=10):
+    model = models.Sequential([
+        layers.Conv2D(6, (5, 5), activation='relu', input_shape=(32, 32, 1)),  # Conv1
+        layers.AveragePooling2D(pool_size=(2, 2)),                             # Pool1
+        layers.Conv2D(16, (5, 5), activation='relu'),                          # Conv2
+        layers.AveragePooling2D(pool_size=(2, 2)),                             # Pool2
+        layers.Flatten(),                                                      # Flatten
+        layers.Dense(120, activation='relu'),                                  # FC1
+        layers.Dense(84, activation='relu'),                                   # FC2
+        layers.Dense(num_classes, activation='softmax')                        # Output
+    ])
+    return model
+
+# ------------------------------
+# Data Loading and Preprocessing
+# ------------------------------
+def load_data():
+    (x_train, y_train), (x_test, y_test) = datasets.mnist.load_data()
+
+    # Resize to 32x32 and add channel dimension
+    x_train = tf.image.resize(tf.expand_dims(x_train, -1), [32, 32]) / 255.0
+    x_test = tf.image.resize(tf.expand_dims(x_test, -1), [32, 32]) / 255.0
+
+    return (x_train, y_train), (x_test, y_test)
+
+# ------------------------------
+# Training and Evaluation
+# ------------------------------
+def main():
+    (x_train, y_train), (x_test, y_test) = load_data()
+
+    # Build model
+    model = LeNet(num_classes=10)
+    model.compile(optimizer='adam',
+                  loss='sparse_categorical_crossentropy',
+                  metrics=['accuracy'])
+
+    # Train model
+    history = model.fit(x_train, y_train,
+                        epochs=5,
+                        batch_size=64,
+                        validation_data=(x_test, y_test))
+
+    # Evaluate model
+    test_loss, test_acc = model.evaluate(x_test, y_test, verbose=2)
+    print(f"\nTest Accuracy: {test_acc * 100:.2f}%")
+
+    # Plot training vs validation accuracy and loss
+    plt.figure(figsize=(10, 4))
+
+    plt.subplot(1, 2, 1)
+    plt.plot(history.history['accuracy'], label='Train Accuracy')
+    plt.plot(history.history['val_accuracy'], label='Val Accuracy')
+    plt.title('Model Accuracy')
+    plt.xlabel('Epoch')
+    plt.ylabel('Accuracy')
+    plt.legend()
+
+    plt.subplot(1, 2, 2)
+    plt.plot(history.history['loss'], label='Train Loss')
+    plt.plot(history.history['val_loss'], label='Val Loss')
+    plt.title('Model Loss')
+    plt.xlabel('Epoch')
+    plt.ylabel('Loss')
+    plt.legend()
+
+    plt.show()
+
+if __name__ == "__main__":
+    main()
+
+
