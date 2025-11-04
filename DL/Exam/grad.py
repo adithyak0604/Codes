@@ -21,6 +21,11 @@ for i in range(iterations):
         print(theta)
         print(f"Final Cost: {cost_history[-1]:.6f}")
         print(f"Total Iterations: {i+1}")
+if not (len(cost_history) > 1 and abs(cost_history[-2] - cost_history[-1]) < 1e-6):
+    print("Final parameters (theta):")
+    print(theta)
+    print(f"Final Cost: {cost_history[-1]:.6f}")
+    print(f"Total Iterations: {iterations}")
 
 plt.scatter(x, y, color='blue', label='Training Data')
 plt.plot(x, x_b.dot(theta), color='red', label='Fitted Line')
