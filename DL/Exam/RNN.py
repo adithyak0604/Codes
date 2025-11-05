@@ -7,8 +7,8 @@ from tensorflow.keras.losses import SparseCategoricalCrossentropy
 import matplotlib.pyplot as plt
 
 # ----- Load and Prepare the MNIST Dataset -----
-mnist = tf.keras.datasets.mnist
-(x_train, y_train), (x_test, y_test) = mnist.load_data()
+mnist = tf.keras.datasets.mnist            #cifar10 = tf.keras.datasets.cifar10
+(x_train, y_train), (x_test, y_test) = mnist.load_data()        #For cifar, cifar10.load_data()
 
 # Normalize the images (values between 0 and 1)
 x_train = x_train.astype('float32') / 255.0
@@ -18,11 +18,15 @@ x_test = x_test.astype('float32') / 255.0
 # So input shape = (28, 28)
 # No need to reshape since MNIST is already (num_samples, 28, 28)
 
+#For cifar10 images, resizing should be done
+'''x_train = x_train.reshape(-1, 32, 96)
+x_test = x_test.reshape(-1, 32, 96)'''
+
 # ----- Build the RNN Model -----
 model = Sequential([
-    SimpleRNN(128, activation='tanh', input_shape=(28, 28), return_sequences=False),
+    SimpleRNN(128, activation='tanh', input_shape=(28, 28), return_sequences=False),        #For cifar10, (32, 96)
     Dropout(0.3),
-    Dense(64, activation='relu'),
+    Dense(64, activation='relu'),                #Dense(128)
     Dropout(0.3),
     Dense(10, activation='softmax')  # Output layer for 10 digit classes
 ])
