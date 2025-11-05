@@ -6,22 +6,23 @@ from tensorflow.keras.losses import SparseCategoricalCrossentropy
 import matplotlib.pyplot as plt
 
 # ----- Load and prepare the MNIST dataset -----
-mnist = tf.keras.datasets.mnist
-(x_train, y_train), (x_test, y_test) = mnist.load_data()
+mnist = tf.keras.datasets.mnist        #cifar10 = tf.keras.datasets.cifar10
+(x_train, y_train), (x_test, y_test) = mnist.load_data()        #cifar10.load_data()
 
 # Reshape for CNN input (batch, height, width, channels)
-x_train = x_train.reshape(-1, 28, 28, 1).astype('float32') / 255.0
-x_test = x_test.reshape(-1, 28, 28, 1).astype('float32') / 255.0
+x_train = x_train.reshape(-1, 28, 28, 1).astype('float32') / 255.0        #For cifar10, x_train = x_train.astype('float32') / 255.0
+
+x_test = x_test.reshape(-1, 28, 28, 1).astype('float32') / 255.0          #For cifar10, x_test = x_test.astype('float32') / 255.0
 
 # ----- Build the CNN model -----
 model = Sequential([
-    Conv2D(32, (3,3), activation='relu', input_shape=(28,28,1)),   # 1st conv layer
+    Conv2D(32, (3,3), activation='relu', input_shape=(28,28,1)),   # 1st conv layer    #For Cifar10, (32, 32, 3)
     MaxPooling2D((2,2)),
     Conv2D(64, (3,3), activation='relu'),                          # 2nd conv layer
     MaxPooling2D((2,2)),
     Conv2D(128, (3,3), activation='relu'),                         # 3rd conv layer
     Flatten(),
-    Dense(128, activation='relu'),
+    Dense(128, activation='relu'),                                 #For cifar10, Dense(256)
     Dropout(0.5),
     Dense(10, activation='softmax')                                # Output layer (10 classes)
 ])
